@@ -666,6 +666,11 @@ _PASSES = (
 )
 
 
+def mentions_wake_up(text: str) -> bool:
+    """Речь о пробуждении: час без уточнения здесь означает утро, а не день."""
+    return bool(_RE_WAKE_UP.search(text.lower().replace("ё", "е")))
+
+
 def parse_temporal(text: str, now: datetime, *, past: bool = False) -> Temporal:
     """Разобрать все временные выражения в тексте относительно момента ``now``.
 

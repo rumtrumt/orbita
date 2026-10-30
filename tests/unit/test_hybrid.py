@@ -122,6 +122,12 @@ def test_lost_time_is_recovered_from_phrase():
     assert command.when.day is not None
 
 
+def test_wake_up_hour_stays_morning_with_llm_quote():
+    client = FakeClient(BASE | {"action": "create_reminder", "when": "завтра в семь"})
+    command = LlmInterpreter(client).interpret("разбуди меня завтра в семь", CONTEXT)
+    assert command.when.at.hour == 7
+
+
 def test_new_title_requires_rename_request():
     client = FakeClient(BASE | {"action": "update", "new_title": "Купить билеты"})
     command = LlmInterpreter(client).interpret("перенеси её", CONTEXT)

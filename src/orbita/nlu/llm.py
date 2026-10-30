@@ -15,7 +15,7 @@ from orbita.llm.client import LlmClient, LlmError
 from orbita.nlu.commands import Action, Command, NluContext, Reference
 from orbita.nlu.morphology import words
 from orbita.nlu.rules import clean_utterance
-from orbita.nlu.temporal import parse_temporal, strip_spans
+from orbita.nlu.temporal import mentions_wake_up, parse_temporal, strip_spans
 
 _SCHEMA: dict[str, Any] = {
     "type": "object",
@@ -113,7 +113,9 @@ class LlmInterpreter:
         # Выражение времени, которого нет в реплике, считаем выдумкой модели.
         quoted = when_text and set(words(when_text)) <= set(words(cleaned))
         # Модель часто теряет время в вопросах, поэтому без цитаты разбираем всю реплику.
-        when = parse_temporal(when_text if quoted else cleaned, context.now, past=past)
+        # Смысл часа может зависеть от слов вне цитаты: «разбуди меня в семь».
+        use_quote = quoted and not mentions_wake_up(cleaned)
+        when = parse_temporal(when_text if use_quote else cleaned, context.now, past=past)
 
         reference = None
         if action in (Action.UPDATE, Action.DELETE, Action.COMPLETE):
