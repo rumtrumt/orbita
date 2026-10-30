@@ -1,0 +1,83 @@
+# Золотой набор реплик. «Сейчас» — пятница, 30.10.2026, 14:00 МСК.
+# Первый блок — дословные примеры из ТЗ, остальные — вариации.
+- {text: "Напомни мне завтра в 10 утра позвонить Ивану", action: create_reminder, title: "Позвонить Ивану", day: 2026-10-31, at: "10:00"}
+- {text: "В пятницу нужно отправить отчет", action: create_task, title: "Отправить отчет", day: 2026-11-06}
+- {text: "Поставь задачу купить билеты до конца недели", action: create_task, title: "Купить билеты", day: 2026-11-01, deadline: true}
+- {text: "Добавь встречу с командой завтра в 15:00", action: create_meeting, title: "Встреча с командой", day: 2026-10-31, at: "15:00"}
+- {text: "В четверг в 11 у меня встреча с дизайнером", action: create_meeting, title: "Встреча с дизайнером", day: 2026-11-05, at: "11:00"}
+- {text: "Что у меня сегодня?", action: list, day: 2026-10-30}
+- {text: "Есть ли у меня встречи сегодня?", action: list, kind: meeting, day: 2026-10-30}
+- {text: "Какие задачи у меня на завтра?", action: list, kind: task, day: 2026-10-31}
+- {text: "Что запланировано на эту неделю?", action: list, period: [2026-10-26, 2026-11-01]}
+- {text: "Найди задачу про презентацию", action: search, query: "презентацию", kind: task}
+- {text: "Когда у меня была встреча с Иваном?", action: search, query: "иваном", kind: meeting, past: true}
+- {text: "Я когда-то ставил задачу по договору, найди ее", action: search, query: "договору", kind: task}
+- {text: "Какие планы на сегодня?", action: list, day: 2026-10-30}
+- {text: "Покажи мои встречи на сегодня", action: list, kind: meeting, day: 2026-10-30}
+- {text: "Поставь встречу с Иваном завтра", action: create_meeting, title: "Встреча с Иваном", day: 2026-10-31}
+- {text: "А перенеси ее на завтра", action: update, ref: pronoun, day: 2026-10-31}
+
+# Создание: естественные формулировки
+- {text: "напомни через два часа выпить таблетку", action: create_reminder, title: "Выпить таблетку", day: 2026-10-30, at: "16:00"}
+- {text: "Напомни, что послезавтра нужно забрать посылку", action: create_reminder, title: "Забрать посылку", day: 2026-11-01}
+- {text: "напомни про встречу с директором завтра утром", action: create_reminder, title: "Встреча с директором", day: 2026-10-31, at: "09:00"}
+- {text: "Не забудь мне напомнить купить цветы в воскресенье", action: create_reminder, day: 2026-11-01}
+- {text: "Надо на следующей неделе сходить к врачу", action: create_task, title: "Сходить к врачу"}
+- {text: "Мне нужно до пятницы подготовить презентацию", action: create_task, title: "Подготовить презентацию", day: 2026-11-06, deadline: true}
+- {text: "Запиши купить молоко", action: create_task, title: "Купить молоко"}
+- {text: "купить хлеб завтра", action: create_task, title: "Купить хлеб", day: 2026-10-31}
+- {text: "Добавь задачу оплатить интернет каждый месяц", action: create_task, title: "Оплатить интернет", recurrence: "FREQ=MONTHLY"}
+- {text: "Каждый день в 8 утра делать зарядку", action: create_task, title: "Делать зарядку", recurrence: "FREQ=DAILY", at: "08:00"}
+- {text: "Запланируй созвон с заказчиком на понедельник в 12", action: create_meeting, title: "Созвон с заказчиком", day: 2026-11-02, at: "12:00"}
+- {text: "Завтра в 19 ужин с Машей", action: create_meeting, title: "Ужин с Машей", day: 2026-10-31, at: "19:00"}
+- {text: "Встречаюсь с Петром в среду в 18:30", action: create_meeting, title: "Встреча с Петром", day: 2026-11-04, at: "18:30"}
+- {text: "Назначь совещание по бюджету на 3 ноября с 10 до 12", action: create_meeting, title: "Совещание по бюджету", day: 2026-11-03, at: "10:00"}
+- {text: "По понедельникам в 10 планерка", action: create_meeting, recurrence: "FREQ=WEEKLY;BYDAY=MO", at: "10:00"}
+- {text: "Создай встречу завтра в 15", action: create_meeting, title: "Встреча", day: 2026-10-31, at: "15:00"}
+- {text: "Подготовить презентацию к понедельнику", action: create_task, title: "Подготовить презентацию", day: 2026-11-02, deadline: true}
+- {text: "Эй, Орбита, напомни завтра позвонить маме, пожалуйста", action: create_reminder, title: "Позвонить маме", day: 2026-10-31}
+
+# Просмотр: разные формулировки одного намерения
+- {text: "что сегодня", action: list, day: 2026-10-30}
+- {text: "Что на завтра?", action: list, day: 2026-10-31}
+- {text: "Расскажи о моих планах на завтра", action: list, day: 2026-10-31}
+- {text: "Покажи расписание на следующую неделю", action: list, period: [2026-11-02, 2026-11-08]}
+- {text: "Какие дела на выходных?", action: list, period: [2026-10-31, 2026-11-01]}
+- {text: "Я завтра свободен?", action: list, day: 2026-10-31}
+- {text: "Есть что-нибудь в понедельник?", action: list, day: 2026-11-02}
+- {text: "Какие встречи на этой неделе", action: list, kind: meeting, period: [2026-10-26, 2026-11-01]}
+- {text: "Что у меня просрочено?", action: list, only_overdue: true}
+- {text: "Покажи выполненные задачи", action: list, kind: task, include_done: true}
+- {text: "Мои задачи на завтра", action: list, kind: task, day: 2026-10-31}
+- {text: "Что запланировано на 5 ноября", action: list, day: 2026-11-05}
+- {text: "Какие планы на ближайшие три дня", action: list, period: [2026-10-30, 2026-11-01]}
+
+# Поиск
+- {text: "Найди встречу с Иваном", action: search, query: "иваном", kind: meeting}
+- {text: "Когда встреча с дизайнером?", action: search, query: "дизайнером", kind: meeting}
+- {text: "Поищи что-то про отчет", action: search, query: "отчет"}
+- {text: "Покажи задачу про договор", action: search, query: "договор", kind: task}
+- {text: "Есть ли у меня встреча с Иваном?", action: search, query: "иваном", kind: meeting}
+- {text: "Когда я должен сдать отчет?", action: search}
+
+# Изменение, удаление, выполнение
+- {text: "Перенеси встречу с Иваном на пятницу", action: update, ref: "встречу с иваном", day: 2026-11-06}
+- {text: "Сдвинь её на час позже", action: update, ref: pronoun, shift: 60}
+- {text: "Давай лучше её на 16:00", action: update, ref: pronoun, at: "16:00"}
+- {text: "Переименуй задачу про отчёт в Годовой отчёт", action: update, new_title: "Годовой отчёт"}
+- {text: "Удали задачу про договор", action: delete, ref: "задачу про договор"}
+- {text: "Удали ее", action: delete, ref: pronoun}
+- {text: "Отмени встречу с Иваном", action: delete, ref: "встречу с иваном"}
+- {text: "Убери вторую", action: delete, ordinal: 2}
+- {text: "Отметь задачу про отчет выполненной", action: complete, ref: "задачу про отчет"}
+- {text: "Я сделал это", action: complete, ref: pronoun}
+- {text: "Готово", action: complete, ref: pronoun}
+- {text: "Заверши первую", action: complete, ordinal: 1}
+- {text: "Я уже отправил отчет", action: complete}
+- {text: "Отмени последнее действие", action: undo}
+- {text: "Отмени", action: undo}
+
+# Прочее
+- {text: "Привет", action: greet}
+- {text: "Спасибо", action: thanks}
+- {text: "Что ты умеешь?", action: help}

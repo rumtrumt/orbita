@@ -1,0 +1,202 @@
+@font-face { font-family: "Unbounded"; src: url("/fonts/unbounded-cyrillic-wght-normal.woff2") format("woff2-variations"); font-weight: 200 900; font-display: swap; unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Unbounded"; src: url("/fonts/unbounded-latin-wght-normal.woff2") format("woff2-variations"); font-weight: 200 900; font-display: swap; unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: "Golos"; src: url("/fonts/golos-text-cyrillic-wght-normal.woff2") format("woff2-variations"); font-weight: 400 900; font-display: swap; unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116; }
+@font-face { font-family: "Golos"; src: url("/fonts/golos-text-latin-wght-normal.woff2") format("woff2-variations"); font-weight: 400 900; font-display: swap; unicode-range: U+0000-00FF, U+2000-206F; }
+@font-face { font-family: "JetBrains"; src: url("/fonts/jetbrains-mono-latin-wght-normal.woff2") format("woff2-variations"); font-weight: 100 800; font-display: swap; }
+
+:root {
+  --bg: #0d0d0b;
+  --bg-raised: #171714;
+  --fg: #efece3;
+  --fg-soft: #b8b5ab;
+  --muted: #7d7b72;
+  --line: #2b2a26;
+  --accent: #ff5a2b;
+  --accent-ink: #0d0d0b;
+  --done: #4f4e48;
+  --gutter: 28px;
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  color-scheme: dark;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #f2efe6; --bg-raised: #e9e5d9; --fg: #141411; --fg-soft: #45443e; --muted: #7b786d;
+    --line: #d5d0c2; --accent: #e23f10; --accent-ink: #f2efe6; --done: #b4b0a3; color-scheme: light;
+  }
+}
+:root[data-theme="light"] {
+  --bg: #f2efe6; --bg-raised: #e9e5d9; --fg: #141411; --fg-soft: #45443e; --muted: #7b786d;
+  --line: #d5d0c2; --accent: #e23f10; --accent-ink: #f2efe6; --done: #b4b0a3; color-scheme: light;
+}
+
+* { box-sizing: border-box; margin: 0; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg);
+  font: 400 15px/1.5 "Golos", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased; overflow: hidden;
+}
+button, input { font: inherit; color: inherit; }
+button { background: none; border: 0; cursor: pointer; padding: 0; }
+a { color: inherit; text-decoration: none; }
+ol { list-style: none; padding: 0; }
+:focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+
+/* Каркас: расписание, циферблат, разговор */
+.shell {
+  height: 100dvh; display: grid; gap: 0 var(--gutter);
+  grid-template: "top top top" auto "day stage talk" minmax(0, 1fr) / minmax(260px, 310px) minmax(0, 1fr) minmax(320px, 400px);
+  padding: 20px var(--gutter) var(--gutter);
+}
+.top { grid-area: top; display: flex; justify-content: space-between; align-items: center; padding-bottom: 16px; }
+.brand { font: 500 14px "Unbounded", sans-serif; display: flex; align-items: center; gap: 10px; letter-spacing: .01em; }
+.brand__mark { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--accent); position: relative; }
+.brand__mark::after { content: ""; position: absolute; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); top: -3px; right: -3px; }
+.top__tools { display: flex; gap: 22px; }
+.tool { font-size: 13px; color: var(--muted); transition: color .2s; }
+.tool:hover { color: var(--fg); }
+.tool[aria-pressed="false"] { text-decoration: line-through; }
+
+/* Левая колонка */
+.day { grid-area: day; overflow-y: auto; scrollbar-width: none; padding-right: 4px; }
+.day__weekday { color: var(--muted); font-size: 14px; }
+.day__date { font: 300 44px/1.05 "Unbounded", sans-serif; letter-spacing: -.03em; margin: 4px 0 22px; }
+.week { display: grid; grid-template-columns: repeat(7, 1fr); margin-bottom: 26px; border-top: 1px solid var(--line); }
+.week button {
+  padding: 9px 0 6px; font-size: 11px; color: var(--muted); display: grid; justify-items: center; gap: 2px;
+  position: relative; transition: color .2s;
+}
+.week button b { font: 500 14px "JetBrains", monospace; color: var(--fg-soft); }
+.week button::before { content: ""; position: absolute; top: -1px; left: 0; right: 0; height: 1px; background: transparent; transition: background .2s; }
+.week button:hover b { color: var(--fg); }
+.week button[aria-current="date"]::before { background: var(--accent); }
+.week button[aria-current="date"] b { color: var(--accent); }
+.week button i { width: 4px; height: 4px; border-radius: 50%; background: transparent; }
+.week button.has-items i { background: var(--muted); }
+
+.agenda li {
+  display: grid; grid-template-columns: 52px 1fr auto; gap: 8px; align-items: baseline;
+  padding: 10px 0; border-bottom: 1px solid var(--line); transition: opacity .25s, color .2s;
+}
+.agenda li.is-hot .entry__title { color: var(--accent); }
+.entry__time { font: 400 12px "JetBrains", monospace; color: var(--muted); }
+.entry__title { overflow-wrap: anywhere; }
+.entry__title::before { content: ""; display: inline-block; width: 7px; height: 7px; margin-right: 8px; vertical-align: 1px; border-radius: 50%; background: var(--fg); }
+.entry--task .entry__title::before { background: none; box-shadow: inset 0 0 0 1.5px var(--fg-soft); border-radius: 2px; }
+.entry--reminder .entry__title::before { background: var(--accent); }
+.entry--done { opacity: .5; }
+.entry--done .entry__title { text-decoration: line-through; }
+.entry__actions { display: flex; gap: 10px; opacity: 0; transition: opacity .15s; }
+.agenda li:hover .entry__actions, .agenda li:focus-within .entry__actions { opacity: 1; }
+.entry__actions button { font-size: 13px; color: var(--muted); line-height: 1; }
+.entry__actions button:hover { color: var(--accent); }
+.agenda__empty { color: var(--muted); padding: 10px 0; display: block !important; border: 0 !important; }
+.side-group { margin-top: 26px; }
+.side-group h3 { font: 500 12px "Golos", sans-serif; color: var(--muted); margin-bottom: 4px; }
+#overdue-group h3 { color: var(--accent); }
+
+/* Центр: циферблат */
+.stage { grid-area: stage; display: grid; place-items: center; min-height: 0; min-width: 0; position: relative; grid-template-rows: minmax(0, 1fr) auto; }
+.dial-box { container-type: size; width: 100%; height: 100%; display: grid; place-items: center; min-height: 0; }
+.dial-wrap { position: relative; width: min(100cqw, 100cqh); height: min(100cqw, 100cqh); }
+.dial, .orb { position: absolute; inset: 0; width: 100%; height: 100%; }
+.orb { pointer-events: none; }
+.mic {
+  position: absolute; inset: 20%; border-radius: 50%; display: grid; place-items: end center;
+  padding-bottom: 14%; touch-action: none; -webkit-tap-highlight-color: transparent;
+}
+.mic:focus-visible { outline-offset: -6px; }
+.mic__state {
+  font: 400 12px "Golos", sans-serif; color: var(--muted); background: color-mix(in srgb, var(--bg) 78%, transparent);
+  padding: 2px 8px; border-radius: 10px; transition: color .2s;
+}
+[data-mode="listening"] .mic__state, [data-mode="speaking"] .mic__state { color: var(--accent); }
+.dial-hint { min-height: 22px; color: var(--muted); font-size: 13px; text-align: center; }
+
+.dial text { font: 400 17px "JetBrains", monospace; fill: var(--muted); text-anchor: middle; dominant-baseline: middle; }
+.dial .tick { stroke: var(--line); stroke-width: 1.5; }
+.dial .tick--major { stroke: var(--muted); }
+.dial .track { fill: none; stroke: var(--line); stroke-width: 1; }
+.dial .passed { fill: none; stroke: var(--muted); stroke-width: 1; opacity: .7; }
+.dial .arc { fill: none; stroke: var(--fg); stroke-width: 15; stroke-linecap: butt; cursor: pointer; transition: stroke .2s, stroke-width .2s var(--ease); }
+.dial .arc:hover, .dial .arc.is-hot { stroke: var(--accent); stroke-width: 21; }
+.dial .arc--done { stroke: var(--done); }
+.dial .dot { fill: var(--bg); stroke: var(--fg); stroke-width: 2.5; cursor: pointer; transition: fill .2s; }
+.dial .dot--reminder { fill: var(--accent); stroke: var(--accent); }
+.dial .dot:hover, .dial .dot.is-hot { fill: var(--accent); stroke: var(--accent); }
+.dial .now { stroke: var(--accent); stroke-width: 2; }
+.dial .now-dot { fill: var(--accent); }
+
+/* Правая колонка: разговор */
+.talk { grid-area: talk; display: flex; flex-direction: column; min-height: 0; }
+.log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; padding: 4px 4px 16px 0; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.log::before { content: ""; margin-top: auto; }
+.msg { max-width: 94%; animation: rise .35s var(--ease); overflow-wrap: anywhere; }
+.msg--user { align-self: flex-end; color: var(--fg-soft); text-align: right; }
+.msg--user.is-voice::before { content: "голос · "; color: var(--muted); font-size: 12px; }
+.msg--assistant { font-size: 16px; line-height: 1.45; }
+.msg--question { color: var(--accent); }
+.msg--reminder { padding-left: 12px; border-left: 2px solid var(--accent); }
+.msg--pending { color: var(--muted); }
+.msg__cards { margin-top: 8px; display: grid; gap: 0; border-top: 1px solid var(--line); }
+.card { display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 14px; }
+.card__when { color: var(--muted); font-size: 12px; grid-column: 1; }
+.card__kind { font-size: 11px; color: var(--muted); grid-column: 2; grid-row: 1; }
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; padding-bottom: 10px; }
+.chips button {
+  font-size: 13px; color: var(--fg-soft); padding: 4px 11px; border: 1px solid var(--line); border-radius: 20px;
+  transition: border-color .2s, color .2s;
+}
+.chips button:hover { border-color: var(--accent); color: var(--accent); }
+
+.composer { display: flex; align-items: center; border-bottom: 1px solid var(--muted); transition: border-color .2s; }
+.composer:focus-within { border-color: var(--accent); }
+.composer input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; padding: 12px 0; font-size: 16px; }
+.composer input::placeholder { color: var(--muted); }
+.composer button { padding: 10px 0 10px 12px; color: var(--muted); }
+.composer button:hover { color: var(--accent); }
+
+/* Вход */
+.gate { height: 100dvh; display: grid; place-items: center; padding: 16px; }
+.gate__card { width: min(380px, 100%); display: grid; gap: 16px; }
+.gate__title { font: 300 clamp(44px, 12vw, 64px)/1 "Unbounded", sans-serif; letter-spacing: -.04em; }
+.gate__title::after { content: "."; color: var(--accent); }
+.gate__lead { color: var(--fg-soft); font-size: 17px; margin-bottom: 12px; }
+.field { display: grid; gap: 2px; font-size: 13px; color: var(--muted); }
+.field input { background: none; border: 0; border-bottom: 1px solid var(--muted); outline: 0; padding: 8px 0; font-size: 17px; color: var(--fg); transition: border-color .2s; border-radius: 0; }
+.field input:focus { border-color: var(--accent); }
+.gate__error { color: var(--accent); min-height: 20px; font-size: 13px; }
+.gate__submit { background: var(--accent); color: var(--accent-ink); padding: 13px; font-weight: 500; transition: transform .15s var(--ease); }
+.gate__submit:active { transform: scale(.98); }
+.gate__note { color: var(--muted); font-size: 12px; }
+
+.toasts { position: fixed; top: 20px; left: 50%; translate: -50% 0; display: grid; gap: 8px; z-index: 10; width: min(420px, calc(100vw - 32px)); }
+.toast { background: var(--accent); color: var(--accent-ink); padding: 12px 16px; animation: rise .3s var(--ease); }
+
+/* Планшет: разговор уходит под циферблат */
+@media (max-width: 1180px) {
+  body { overflow: auto; }
+  .shell { height: auto; min-height: 100dvh; grid-template: "top top" auto "stage talk" 58vh "day talk" auto / minmax(0, 1fr) minmax(300px, 380px); }
+  .talk { position: sticky; top: 16px; height: calc(100dvh - 90px); }
+  .day { overflow: visible; }
+}
+/* Телефон: циферблат сверху, разговор и расписание ниже */
+@media (max-width: 760px) {
+  :root { --gutter: 16px; }
+  .shell { display: flex; flex-direction: column; padding-top: 14px; gap: 0; }
+  .top__tools { gap: 14px; }
+  #theme-toggle { display: none; }
+  .stage { height: min(92vw, 46dvh); flex: none; }
+  .talk { position: static; height: auto; order: 1; }
+  .log { max-height: 40dvh; min-height: 96px; }
+  .day { order: 2; margin-top: 30px; }
+  .day__date { font-size: 36px; }
+  .dial-hint { display: none; }
+  .entry__actions { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before { animation: none !important; transition: none !important; }
+}

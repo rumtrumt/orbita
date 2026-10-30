@@ -1,0 +1,22 @@
+services:
+  orbita:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      ORBITA_LLM_BASE_URL: http://ollama:11434/v1
+    volumes:
+      - orbita-data:/data
+      - hf-cache:/root/.cache/huggingface
+    depends_on:
+      - ollama
+
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-data:/root/.ollama
+
+volumes:
+  orbita-data:
+  hf-cache:
+  ollama-data:

@@ -1,0 +1,21 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: "3.12"
+      - run: uv sync --frozen
+      - run: uv run ruff format --check src tests evals
+      - run: uv run ruff check src tests evals
+      - run: uv run mypy
+      # Тесты с моделями выполняются локально: в CI нет весов и GPU.
+      - run: uv run pytest -m "not llm and not voice"

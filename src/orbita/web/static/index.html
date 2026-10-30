@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Орбита</title>
+  <meta name="description" content="Голосовой ассистент для задач, напоминаний и встреч">
+  <meta name="theme-color" content="#0d0d0b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23ff5a2b' stroke-width='3'/%3E%3Ccircle cx='24.5' cy='7.5' r='4' fill='%23ff5a2b'/%3E%3C/svg%3E">
+  <link rel="preload" href="/fonts/unbounded-cyrillic-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <section class="gate" id="gate" hidden>
+    <form class="gate__card" id="gate-form" autocomplete="on">
+      <h1 class="gate__title">Орбита</h1>
+      <p class="gate__lead">Скажите, что нужно сделать. Я&nbsp;запишу, напомню и&nbsp;найду.</p>
+      <label class="field"><span>Имя</span>
+        <input id="gate-name" name="username" maxlength="40" required autocomplete="username"></label>
+      <label class="field"><span>PIN, от 4 цифр</span>
+        <input id="gate-pin" name="password" type="password" inputmode="numeric" minlength="4" maxlength="32" required autocomplete="current-password"></label>
+      <p class="gate__error" id="gate-error" role="alert"></p>
+      <button class="gate__submit" type="submit">Войти</button>
+      <p class="gate__note">Новое имя создаст новый профиль. Данные каждого профиля разделены.</p>
+    </form>
+  </section>
+
+  <main class="shell" id="app" hidden>
+    <header class="top">
+      <div class="brand"><span class="brand__mark" aria-hidden="true"></span>Орбита</div>
+      <div class="top__tools">
+        <button class="tool" id="sound-toggle" type="button" aria-pressed="true" title="Озвучивать ответы">Звук</button>
+        <button class="tool" id="theme-toggle" type="button" title="Сменить тему">Тема</button>
+        <a class="tool" id="calendar-link" title="Подписка на календарь, .ics">Календарь</a>
+        <button class="tool" id="logout" type="button"></button>
+      </div>
+    </header>
+
+    <aside class="day" aria-label="Расписание">
+      <p class="day__weekday" id="day-weekday"></p>
+      <h2 class="day__date" id="day-date"></h2>
+      <nav class="week" id="week" aria-label="Дни недели"></nav>
+      <ol class="agenda" id="agenda"></ol>
+      <div class="side-group" id="overdue-group" hidden>
+        <h3>Просрочено</h3><ol class="agenda" id="overdue"></ol>
+      </div>
+      <div class="side-group" id="undated-group" hidden>
+        <h3>Без даты</h3><ol class="agenda" id="undated"></ol>
+      </div>
+    </aside>
+
+    <section class="stage" aria-label="Голосовое управление">
+      <div class="dial-box"><div class="dial-wrap">
+        <svg class="dial" id="dial" viewBox="-500 -500 1000 1000" aria-hidden="true"></svg>
+        <canvas class="orb" id="orb"></canvas>
+        <button class="mic" id="mic" type="button" aria-label="Начать запись">
+          <span class="mic__state" id="stage-label">Нажмите и говорите</span>
+        </button>
+      </div></div>
+      <p class="dial-hint" id="dial-hint" aria-live="polite"></p>
+    </section>
+
+    <section class="talk" aria-label="Диалог">
+      <div class="log" id="log" role="log" aria-live="polite"></div>
+      <div class="chips" id="chips"></div>
+      <form class="composer" id="composer">
+        <input id="composer-input" maxlength="1000" autocomplete="off" placeholder="Написать или зажать пробел" aria-label="Сообщение">
+        <button type="submit" aria-label="Отправить">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M4 12h15m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
+      </form>
+    </section>
+  </main>
+
+  <div class="toasts" id="toasts" aria-live="assertive"></div>
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
