@@ -1,5 +1,9 @@
 # Орбита
 
+[![CI](https://github.com/rumtrumt/orbita/actions/workflows/ci.yml/badge.svg)](https://github.com/rumtrumt/orbita/actions/workflows/ci.yml)
+![Python 3.12](https://img.shields.io/badge/python-3.12-3776ab)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
 Голосовой ассистент для личных задач, напоминаний и встреч на русском языке. Говорите или пишите
 свободно: «В четверг в 11 у меня встреча с дизайнером», а «Орбита» поймёт, сохранит, напомнит и
 найдёт потом по смыслу. Центр интерфейса — циферблат суток: встречи на нём дуги, задачи и
@@ -8,16 +12,27 @@
 Всё работает локально и бесплатно: распознавание, понимание, синтез и база данных. Ни один запрос
 не уходит в облако, API-ключи не нужны.
 
+![Интерфейс: расписание, циферблат суток и диалог](docs/img/dial.png)
+
+<table>
+  <tr>
+    <td><img src="docs/img/light.png" alt="Светлая тема"></td>
+    <td width="24%"><img src="docs/img/mobile.png" alt="Вид на телефоне"></td>
+  </tr>
+</table>
+
 ## Быстрый старт
 
 Нужны Python 3.12, [uv](https://docs.astral.sh/uv/) и [Ollama](https://ollama.com).
 
 ```bash
-git clone <адрес репозитория> && cd Orbita
+git clone https://github.com/rumtrumt/orbita.git && cd orbita
 uv sync --extra gpu          # без GPU NVIDIA: uv sync
 ollama pull qwen3:4b
-uv run orbita                # http://127.0.0.1:8000
+uv run --extra gpu orbita    # без GPU: uv run orbita
 ```
+
+Приложение откроется на http://127.0.0.1:8000.
 
 При первом запуске загрузятся модели: Whisper (1,6 ГБ), эмбеддинги (0,2 ГБ), голос Piper (0,06 ГБ).
 Если Ollama не запущена, ассистент работает на правилах и обязательные сценарии выполняются.
@@ -83,6 +98,40 @@ flowchart LR
 
 Подробнее: [docs/architecture.md](docs/architecture.md), решения: [docs/adr](docs/adr).
 
+## Структура проекта
+
+```text
+├── src/orbita/       код приложения, пакеты описаны в таблице выше
+│   ├── container.py  сборка зависимостей
+│   ├── config.py     настройки из переменных окружения
+│   └── web/static/   интерфейс без сборки
+├── tests/
+│   ├── unit/         парсер времени, правила, гибрид, аудио
+│   ├── integration/  диалоги, HTTP API, качество поиска
+│   ├── golden/       золотой набор реплик
+│   └── e2e/          живой голосовой прогон в Chromium
+├── evals/            сложный и контрольный наборы, сравнение режимов NLU
+└── docs/             архитектура, решения (ADR), изображения
+```
+
+## HTTP API
+
+Интерактивная документация доступна на `/docs` запущенного сервера.
+
+| Метод и путь | Назначение |
+|---|---|
+| `POST /api/session` | вход или создание профиля |
+| `POST /api/chat` | текстовая реплика |
+| `POST /api/voice` | голосовая реплика, ответ потоком NDJSON по этапам |
+| `POST /api/tts` | озвучивание текста |
+| `GET /api/agenda` | расписание за период |
+| `POST /api/items/{id}/complete` | отметить выполненной |
+| `DELETE /api/items/{id}` | удалить |
+| `GET /api/messages` | история диалога |
+| `GET /api/events` | напоминания и обновления через SSE |
+| `GET /api/calendar/{token}.ics` | лента для подписки календаря |
+| `GET /api/health` | состояние компонентов |
+
 ## Технологии
 
 | Задача | Выбор | Почему |
@@ -120,10 +169,13 @@ flowchart LR
 ## Качество
 
 ```bash
-uv run pytest                        # все тесты
+uv run pytest                        # все тесты, модельные пропускаются без моделей
 uv run python evals/run_nlu_eval.py  # сравнение режимов NLU, нужна Ollama
 uv run python tests/e2e/voice_roundtrip.py http://127.0.0.1:8000  # живой голосовой прогон
+uv run ruff check src tests evals && uv run mypy                  # линтер и типы
 ```
+
+Как вносить изменения, описано в [CONTRIBUTING.md](CONTRIBUTING.md).
 
 Точность понимания: доля реплик, где верны намерение и все проверяемые поля.
 
@@ -154,7 +206,7 @@ uv run python tests/e2e/voice_roundtrip.py http://127.0.0.1:8000  # живой �
 - Интеграция с календарём односторонняя: подписка на ленту, а не синхронизация.
 - Качество голоса Piper на слух не оценивалось, возможны неверные ударения в редких словах.
 - SQLite рассчитан на одного активного писателя, для многих пользователей нужен PostgreSQL.
-- Dockerfile и CI-конфигурация не запускались: на машине разработки нет Docker.
+- Docker-образ не собирался: на машине разработки нет Docker.
 
 ## Что улучшил бы дальше
 
