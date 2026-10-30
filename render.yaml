@@ -19,6 +19,8 @@ services:
         value: /tmp/orbita
       - key: ORBITA_STT_PROVIDER
         value: remote
+      - key: ORBITA_STT_MODEL
+        value: whisper-large-v3
       - key: ORBITA_TTS_PROVIDER
         value: "off"
       - key: ORBITA_SEMANTIC_SEARCH

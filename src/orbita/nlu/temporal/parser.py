@@ -47,6 +47,8 @@ _NEXT = r"следующ\w+|будущ\w+"
 _THIS = r"эт\w+|текущ\w+|ближайш\w+"
 _PREV = r"прошл\w+|предыдущ\w+|минувш\w+"
 _UNIT_MINUTES = {"м": 1, "ч": 60, "д": 1440, "с": 1440, "н": 10080}
+_LAST_EVENING_HOUR = 9
+_RE_WAKE_UP = re.compile(r"\b(?:разбуд\w*|будильник\w*|просну\w*|подъем\w*|встать|вставать)\b")
 
 
 def _weekday_index(word: str) -> int:
@@ -610,7 +612,12 @@ def _resolve(s: _Scan) -> None:
         elif s.bare_hour:
             result.at = result.at.replace(hour=_with_daypart(result.at.hour, s.daypart) % 24)
             s.bare_hour = False
-    elif s.bare_hour and result.at is not None and result.at.hour < 8:
+    elif (
+        s.bare_hour
+        and result.at is not None
+        and result.at.hour < 8
+        and not _RE_WAKE_UP.search(s.source.text)
+    ):
         # Без части суток «в 3» — почти всегда день: в три ночи встречи не назначают.
         result.at = result.at.replace(hour=result.at.hour + 12)
         result.meridiem_assumed = True
@@ -619,10 +626,13 @@ def _resolve(s: _Scan) -> None:
         result.day_inferred = True
         tz = s.now.tzinfo
         afternoon = result.at.hour + 12 if result.at.hour < 12 else result.at.hour
+        # «в 8» вечером — это сегодня в 20:00, а «в 10» днём — скорее завтрашнее утро.
+        evening_hour = result.at.hour <= _LAST_EVENING_HOUR
         if datetime.combine(s.today, result.at, tzinfo=tz) > s.now:
             result.day = s.today
         elif (
             s.bare_hour
+            and evening_hour
             and datetime.combine(s.today, result.at.replace(hour=afternoon), tzinfo=tz) > s.now
         ):
             # «в 8» в половине седьмого вечера — это сегодня в 20:00, а не завтра утром.

@@ -13,6 +13,7 @@ import structlog
 
 from orbita.domain.errors import SpeechNotRecognizedError, VoiceUnavailableError
 from orbita.voice.stt import HALLUCINATIONS, MAX_NO_SPEECH, PROMPT, Transcript
+from orbita.voice.transcript import polish
 
 log = structlog.get_logger(__name__)
 
@@ -81,7 +82,7 @@ class RemoteRecognizer:
         if response.is_error:
             raise VoiceUnavailableError(f"Сервис распознавания: {response.status_code}")
         body = response.json()
-        text = _text_from(body)
+        text = polish(_text_from(body))
         if not text:
             raise SpeechNotRecognizedError("Речь не распознана")
         return Transcript(text, float(body.get("duration", 0.0)), time.perf_counter() - started)

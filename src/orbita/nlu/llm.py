@@ -71,6 +71,9 @@ action:
 "надо бы маме цветы купить к восьмому марта" → {"action":"create_task","title":"Купить маме цветы","when":"к восьмому марта","query":null,"kind":"task","refers_to_previous":false,"ordinal":null,"new_title":null,"past":false}
 "что там по документам на подпись" → {"action":"search","title":null,"when":null,"query":"документы на подпись","kind":null,"refers_to_previous":false,"ordinal":null,"new_title":null,"past":false}
 "сдвинь это на час позже" → {"action":"update","title":null,"when":"на час позже","query":null,"kind":null,"refers_to_previous":true,"ordinal":null,"new_title":null,"past":false}
+"мы с Олегом вообще созванивались в этом месяце" → {"action":"search","title":null,"when":"в этом месяце","query":"Олег","kind":"meeting","refers_to_previous":false,"ordinal":null,"new_title":null,"past":true}
+"забрал документы из банка" → {"action":"complete","title":null,"when":null,"query":"забрать документы из банка","kind":null,"refers_to_previous":false,"ordinal":null,"new_title":null,"past":false}
+"послезавтра к десяти в паспортный стол" → {"action":"create_meeting","title":"Паспортный стол","when":"послезавтра к десяти","query":null,"kind":"meeting","refers_to_previous":false,"ordinal":null,"new_title":null,"past":false}
 "какая погода" → {"action":"unknown","title":null,"when":null,"query":null,"kind":null,"refers_to_previous":false,"ordinal":null,"new_title":null,"past":false}
 """
 

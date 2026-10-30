@@ -28,6 +28,7 @@ MSK = ZoneInfo("Europe/Moscow")
 NOW = datetime(2026, 10, 30, 14, 0, tzinfo=MSK)
 HARD = yaml.safe_load((Path(__file__).parent / "nlu_hard.yaml").read_text("utf-8"))
 HOLDOUT = yaml.safe_load((Path(__file__).parent / "nlu_holdout.yaml").read_text("utf-8"))
+HOLDOUT_2 = yaml.safe_load((Path(__file__).parent / "nlu_holdout_2.yaml").read_text("utf-8"))
 
 
 def evaluate(interpreter, cases, show_errors: bool) -> tuple[int, int, float]:
@@ -56,7 +57,12 @@ def main() -> None:
     print("|---|---|---:|---:|---:|---:|")
     for mode in args.mode:
         interpreter = build_interpreter(Settings(nlu_mode=NluMode(mode), _env_file=None))
-        for name, cases in (("золотой", CASES), ("сложный", HARD), ("контрольный", HOLDOUT)):
+        for name, cases in (
+            ("золотой", CASES),
+            ("сложный", HARD),
+            ("настроечный", HOLDOUT),
+            ("контрольный", HOLDOUT_2),
+        ):
             action, full, seconds = evaluate(interpreter, cases, args.errors)
             total = len(cases)
             print(

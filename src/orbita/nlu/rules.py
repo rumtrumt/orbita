@@ -37,6 +37,7 @@ _CREATE_LEMMAS = {
 _NEED_LEMMAS = {"нужно", "надо", "необходимо", "должен", "нужен", "хотеть", "требоваться", "пора"}
 _TASK_NOUNS = {"задача", "задачка", "дело", "таск", "пункт", "туду"}
 _ANY_ITEM_NOUNS = _TASK_NOUNS | {"встреча", "напоминание", "запись", "событие", "мероприятие"}
+_ANY_MEETING_NOUNS = _MEETING_LEMMAS | _TASK_NOUNS
 _LIST_NOUNS = {
     "план", "расписание", "календарь", "дело", "задача", "встреча", "напоминание", "событие",
     "повестка", "список", "мероприятие", "запись",
@@ -49,6 +50,9 @@ _SHOW_LEMMAS = {
     "перечислить",
     "открыть",
     "вывести",
+    "посмотреть",
+    "озвучить",
+    "дать",
 }
 _DELETE_LEMMAS = {"удалить", "убрать", "стереть", "снести", "вычеркнуть", "выкинуть", "удаль"}
 _UPDATE_LEMMAS = {
@@ -67,8 +71,8 @@ _RE_PAST = re.compile(
     r"\b(был|была|были|было|ставил\w*|создавал\w*|добавлял\w*|записывал\w*|планировал\w*)\b"
 )
 _RE_UNDO = re.compile(
-    r"^(?:отмени(?:ть)?|откати(?:ть)?|верни(?:те)?)(?:\s+(?:это|последнее|как было|назад|обратно"
-    r"|действие|последнее действие|изменения?|все как было))*\s*$"
+    r"^(?:передумал\w*,?\s+)?(?:отмени(?:ть)?|откати(?:ть)?|верни(?:те)?)"
+    r"(?:\s+(?:это|последн\w+|как было|назад|обратно|действи\w+|изменени\w+|все как было))*\s*$"
 )
 _RE_GREET = re.compile(r"^(?:привет\w*|здравствуй\w*|добр\w+ (?:утро|день|вечер)|хай|салют)\b")
 _RE_THANKS = re.compile(r"^(?:спасибо|благодарю|спс|отлично спасибо|супер)\b")
@@ -119,6 +123,8 @@ _RE_STRIP_TASK = re.compile(
     r")(?![а-яё])(?:\s*[,:\-]?\s*(?:о\s+том|что(?:\s+(?:нужно|надо))?|чтобы|на|про|по)\b)?\s*",
     re.IGNORECASE,
 )
+_NOT_RESULT_VERBS = {"забыть", "передумать", "сказать", "успеть", "заболеть", "устать"}
+_RE_REPORT_BLOCKERS = re.compile(r"\b(?:когда|где|что|как|почему|не|был|была|было|были)\b")
 _RE_NEED_WORD = re.compile(r"\b(?:нужно|надо|необходимо|пора|должен|должна|хочу|требуется)\b", re.I)
 _RE_QUERY_NOISE = re.compile(
     r"\b(?:когда-то|как-то|где-то|что-то|какую-то|какая-то|какой-то|найди\w*|найти|поищи\w*|ищи"
@@ -351,7 +357,27 @@ class RuleInterpreter:
             confidence=0.9,
         )
 
+    def _reported_result(self, s: _Signals) -> Command | None:
+        """«Посылку забрал», «отчёт я отправил»: короткий рассказ о завершённом деле."""
+        if len(s.tokens) > 4 or _RE_REPORT_BLOCKERS.search(s.lower) or points_at_record(s.lower):
+            return None
+        for token in s.tokens:
+            tag = analyzer().parse(token)[0].tag
+            verb = lemma(token)
+            if tag.POS == "VERB" and "past" in tag and "perf" in tag and "plur" not in tag:
+                if verb in _NOT_RESULT_VERBS:
+                    return None
+                rest = [t for t in s.tokens if t not in (token, "я")]
+                return Command(
+                    Action.COMPLETE,
+                    reference=Reference(query=" ".join([verb, *rest])),
+                    confidence=0.87,
+                )
+        return None
+
     def _complete(self, s: _Signals, residual: str) -> Command | None:
+        if reported := self._reported_result(s):
+            return reported
         already = _RE_ALREADY_DONE.match(s.lower)
         if (
             already
@@ -402,7 +428,8 @@ class RuleInterpreter:
             and any(t in _REFERENCE_WORDS for t in s.tokens)
             and not s.when.empty
         )
-        if not s.has(_UPDATE_LEMMAS) and not move_by_pronoun:
+        named_shift = s.when.shift_minutes is not None and bool(s.lemmas & _ANY_MEETING_NOUNS)
+        if not s.has(_UPDATE_LEMMAS) and not move_by_pronoun and not named_shift:
             return None
         query = _extract_query(
             re.sub(

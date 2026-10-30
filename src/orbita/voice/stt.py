@@ -17,13 +17,15 @@ import numpy as np
 import structlog
 
 from orbita.domain.errors import SpeechNotRecognizedError, VoiceUnavailableError
+from orbita.voice.transcript import polish
 
 log = structlog.get_logger(__name__)
 
 # Подсказка смещает распознавание к лексике планировщика и к записи чисел цифрами.
 PROMPT = (
     "Напомни завтра в 10 утра позвонить Ивану. Поставь встречу с командой в пятницу в 15:00. "
-    "Что у меня на следующей неделе? Найди задачу про договор."
+    "Что у меня на следующей неделе? Найди задачу про договор. Удали созвон с заказчиком. "
+    "Перенеси планёрку на час позже. Отмени последнее действие. Отметь отчёт выполненным."
 )
 # На тишине Whisper дописывает фразы из титров, на которых обучался.
 HALLUCINATIONS = re.compile(
@@ -142,7 +144,7 @@ class WhisperRecognizer:
         except Exception as error:
             log.warning("stt.decode_failed", error=str(error))
             raise SpeechNotRecognizedError("Не удалось прочитать аудио") from error
-        text = " ".join(parts).strip()
+        text = polish(" ".join(parts).strip())
         if not text:
             raise SpeechNotRecognizedError("Речь не распознана")
         return Transcript(text, float(info.duration), time.perf_counter() - started)

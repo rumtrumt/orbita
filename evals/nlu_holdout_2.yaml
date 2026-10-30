@@ -1,0 +1,43 @@
+# Второй контрольный набор. Написан до работы над ошибками первого, правила и промпт по нему не
+# настраиваются. Первый контрольный набор после разбора его ошибок стал настроечным.
+# «Сейчас» — 30.10.2026, 14:00.
+- {text: "завтра к восьми на приём к терапевту", action: create_meeting, day: 2026-10-31, at: "08:00"}
+- {text: "в пятницу вечером ужин у родителей", action: create_meeting, day: 2026-11-06, at: "19:00"}
+- {text: "запиши что в среду в обед совещание по продажам", action: create_meeting, day: 2026-11-04, at: "13:00"}
+- {text: "сегодня в девять вечера вебинар", action: create_meeting, day: 2026-10-30, at: "21:00"}
+- {text: "в субботу едем на дачу, взять инструменты", action: create_task, day: 2026-10-31}
+- {text: "к понедельнику дочитать книгу", action: create_task, day: 2026-11-02, deadline: true}
+- {text: "хочу до конца недели разобрать почту", action: create_task, day: 2026-11-01, deadline: true}
+- {text: "отправь мне напоминание через час про обед", action: create_reminder, day: 2026-10-30, at: "15:00"}
+- {text: "напоминай каждую пятницу сдавать отчёт", action: create_reminder, recurrence: "FREQ=WEEKLY;BYDAY=FR"}
+- {text: "не забудь завтра утром про лекарства", action: create_reminder, day: 2026-10-31, at: "09:00"}
+- {text: "через три дня продлить подписку", action: create_task, day: 2026-11-02}
+- {text: "купить корм коту", action: create_task}
+- {text: "что у меня с утра завтра", action: list, day: 2026-10-31}
+- {text: "дай расписание на вторник", action: list, day: 2026-11-03}
+- {text: "есть планы на вечер", action: list}
+- {text: "какие встречи у меня в ноябре", action: list, kind: meeting}
+- {text: "что я должен сделать сегодня", action: list, day: 2026-10-30}
+- {text: "что было вчера", action: list, day: 2026-10-29}
+- {text: "покажи что просрочено", action: list, only_overdue: true}
+- {text: "найди всё про отпуск", action: search}
+- {text: "когда я встречаюсь с Мариной", action: search}
+- {text: "была ли встреча с бухгалтером", action: search}
+- {text: "где задача про сайт", action: search}
+- {text: "я что-то записывал про машину", action: search}
+- {text: "перенеси планёрку на вторник", action: update, day: 2026-11-03}
+- {text: "встречу с Мариной сдвинь на час раньше", action: update, shift: -60}
+- {text: "поставь эту встречу на 18:00", action: update, at: "18:00"}
+- {text: "пересади созвон на завтра", action: update, day: 2026-10-31}
+- {text: "измени время созвона на 12", action: update, at: "12:00"}
+- {text: "купил корм", action: complete}
+- {text: "задача про сайт выполнена", action: complete}
+- {text: "закрой задачу про отчёт", action: complete}
+- {text: "сотри напоминание про лекарства", action: delete}
+- {text: "встречи с Мариной не будет", action: delete}
+- {text: "удали созвон с клиентом", action: delete}
+- {text: "верни как было", action: undo}
+- {text: "передумал, отмени последнее", action: undo}
+- {text: "доброе утро", action: greet}
+- {text: "кто ты такая", action: help}
+- {text: "включи музыку", action: unknown}
