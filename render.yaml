@@ -1,0 +1,31 @@
+# Демонстрация на бесплатном тарифе Render: 512 МБ памяти, без GPU и постоянного диска.
+# Распознавание и LLM работают через API Groq, ответы озвучивает браузер.
+services:
+  - type: web
+    name: orbita
+    runtime: python
+    plan: free
+    buildCommand: pip install uv && uv sync --frozen --no-dev
+    startCommand: .venv/bin/python -m orbita
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: ORBITA_HOST
+        value: 0.0.0.0
+      - key: ORBITA_PORT
+        value: 10000
+      - key: ORBITA_DATA_DIR
+        value: /tmp/orbita
+      - key: ORBITA_STT_PROVIDER
+        value: remote
+      - key: ORBITA_TTS_PROVIDER
+        value: "off"
+      - key: ORBITA_SEMANTIC_SEARCH
+        value: "false"
+      - key: ORBITA_LLM_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: ORBITA_LLM_MODEL
+        value: openai/gpt-oss-20b
+      - key: ORBITA_LLM_API_KEY
+        sync: false

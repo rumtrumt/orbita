@@ -21,17 +21,17 @@ from orbita.domain.errors import SpeechNotRecognizedError, VoiceUnavailableError
 log = structlog.get_logger(__name__)
 
 # Подсказка смещает распознавание к лексике планировщика и к записи чисел цифрами.
-_PROMPT = (
+PROMPT = (
     "Напомни завтра в 10 утра позвонить Ивану. Поставь встречу с командой в пятницу в 15:00. "
     "Что у меня на следующей неделе? Найди задачу про договор."
 )
 # На тишине Whisper дописывает фразы из титров, на которых обучался.
-_HALLUCINATIONS = re.compile(
+HALLUCINATIONS = re.compile(
     r"субтитр|продолжение следует|спасибо за просмотр|подписывайтесь|ставьте лайк|dimatorzok"
     r"|amara\.org|редактор субтитров|корректор",
     re.IGNORECASE,
 )
-_MAX_NO_SPEECH = 0.75
+MAX_NO_SPEECH = 0.75
 SAMPLE_RATE = 16000
 
 
@@ -128,14 +128,14 @@ class WhisperRecognizer:
                 beam_size=self._beam_size,
                 vad_filter=True,
                 vad_parameters={"min_silence_duration_ms": 500},
-                initial_prompt=_PROMPT,
+                initial_prompt=PROMPT,
                 condition_on_previous_text=False,
             )
             parts = [
                 segment.text.strip()
                 for segment in segments
-                if segment.no_speech_prob < _MAX_NO_SPEECH
-                and not _HALLUCINATIONS.search(segment.text)
+                if segment.no_speech_prob < MAX_NO_SPEECH
+                and not HALLUCINATIONS.search(segment.text)
             ]
         except SpeechNotRecognizedError:
             raise

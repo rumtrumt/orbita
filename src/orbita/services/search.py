@@ -41,6 +41,7 @@ _SEMANTIC_SURE = 0.7  # выше — близко по смыслу без до�
 _SEMANTIC_PLAUSIBLE = 0.53  # столько достаточно, если проверить некому
 _SEMANTIC_CANDIDATE = 0.3  # ниже — не показываем даже LLM
 _MAX_CANDIDATES = 5
+_MAX_BLIND_CANDIDATES = 30  # без эмбеддингов LLM смотрит последние записи
 _LEXICAL_MIN = 0.45
 _LEXICAL_WEIGHT = 0.65
 
@@ -173,6 +174,9 @@ class SearchService:
                 hits.append(SearchHit(item, sem, "semantic"))
             elif sem >= _SEMANTIC_CANDIDATE:
                 uncertain.append((item, sem))
+        if not hits and self._embedder is None:
+            newest = sorted(items, key=lambda item: item.id or 0, reverse=True)
+            uncertain = [(item, 0.0) for item in newest[:_MAX_BLIND_CANDIDATES]]
         if not hits:
             hits = self._judge(query, uncertain)
         hits.sort(key=lambda hit: hit.score, reverse=True)
@@ -181,7 +185,8 @@ class SearchService:
     def _judge(self, query: str, uncertain: list[tuple[Item, float]]) -> list[SearchHit]:
         """Решить судьбу записей из средней зоны близости."""
         uncertain.sort(key=lambda pair: pair[1], reverse=True)
-        candidates = uncertain[:_MAX_CANDIDATES]
+        limit = _MAX_CANDIDATES if self._embedder else _MAX_BLIND_CANDIDATES
+        candidates = uncertain[:limit]
         if not candidates:
             return []
         if self._reranker is not None:

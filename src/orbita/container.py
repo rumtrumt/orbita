@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from orbita.clock import Clock, SystemClock
-from orbita.config import NluMode, Settings, TtsProvider
+from orbita.config import NluMode, Settings, SttProvider, TtsProvider
 from orbita.events import EventBus
 from orbita.llm.client import LlmClient
 from orbita.llm.rerank import LlmReranker
@@ -16,6 +16,7 @@ from orbita.nlu.rules import RuleInterpreter
 from orbita.services.embeddings import Embedder, FastEmbedder
 from orbita.services.search import Reranker
 from orbita.storage.db import Database, make_engine, upgrade_database
+from orbita.voice.remote_stt import RemoteRecognizer
 from orbita.voice.stt import SpeechRecognizer, WhisperRecognizer
 from orbita.voice.tts import EdgeSynthesizer, PiperSynthesizer, Synthesizer
 
@@ -52,6 +53,22 @@ def build_interpreter(settings: Settings) -> Interpreter:
     return HybridInterpreter(rules, llm)
 
 
+def build_recognizer(settings: Settings) -> SpeechRecognizer:
+    if settings.stt_provider is SttProvider.REMOTE:
+        return RemoteRecognizer(
+            settings.stt_base_url,
+            settings.stt_model,
+            settings.llm_api_key.get_secret_value(),
+            settings.llm_timeout_seconds,
+        )
+    return WhisperRecognizer(
+        settings.whisper_model,
+        settings.whisper_device,
+        settings.whisper_compute_type,
+        settings.whisper_beam_size,
+    )
+
+
 def build_synthesizer(settings: Settings) -> Synthesizer | None:
     if settings.tts_provider is TtsProvider.PIPER:
         return PiperSynthesizer(settings.piper_voice, settings.models_dir)
@@ -80,12 +97,7 @@ def build_container(settings: Settings) -> Container:
             if settings.nlu_mode is not NluMode.RULES
             else None
         ),
-        recognizer=WhisperRecognizer(
-            settings.whisper_model,
-            settings.whisper_device,
-            settings.whisper_compute_type,
-            settings.whisper_beam_size,
-        ),
+        recognizer=build_recognizer(settings),
         synthesizer=build_synthesizer(settings),
         bus=EventBus(),
     )

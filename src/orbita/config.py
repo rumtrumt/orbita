@@ -29,6 +29,11 @@ def _default_data_dir() -> Path:
     return user_data_path("orbita", appauthor=False)
 
 
+class SttProvider(StrEnum):
+    LOCAL = "local"
+    REMOTE = "remote"
+
+
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_prefix="ORBITA_", env_file=".env", extra="ignore")
 
@@ -45,6 +50,10 @@ class Settings(BaseSettings):
     llm_api_key: SecretStr = SecretStr("ollama")
     llm_timeout_seconds: float = 25.0
 
+    stt_provider: SttProvider = SttProvider.LOCAL
+    # Ключ облачного распознавания — ORBITA_LLM_API_KEY: обычно это один провайдер.
+    stt_base_url: str = "https://api.groq.com/openai/v1"
+    stt_model: str = "whisper-large-v3-turbo"
     whisper_model: str = "large-v3-turbo"
     whisper_device: str = "auto"
     whisper_compute_type: str = "auto"
